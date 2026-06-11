@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # DocMind — Assistant IA documentaire
 
 > Dépose tes PDF et Word, pose des questions en langage naturel, obtiens des réponses générées par IA avec les sources citées.
