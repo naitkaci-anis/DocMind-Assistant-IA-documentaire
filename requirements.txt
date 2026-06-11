@@ -1,0 +1,25 @@
+# ── Serveur web ──────────────────────────────────────────────────────
+fastapi
+uvicorn[standard]      # Serveur ASGI rapide
+jinja2                 # Templates HTML
+python-multipart       # Nécessaire pour les uploads de fichiers
+
+# ── Lecture de documents ──────────────────────────────────────────────
+pymupdf                # Extraction texte PDF (bibliothèque fitz)
+python-docx            # Extraction texte Word (.docx)
+
+# ── IA — Embeddings ───────────────────────────────────────────────────
+sentence-transformers  # Modèle all-MiniLM-L6-v2 (installe torch automatiquement)
+
+# ── IA — LLM ─────────────────────────────────────────────────────────
+ollama                 # Client Python pour Ollama (LLM local)
+
+# ── Base de données vectorielle ───────────────────────────────────────
+chromadb               # Stockage et recherche de vecteurs
+
+# ── Utilitaires ───────────────────────────────────────────────────────
+python-dotenv          # Chargement des variables .env
+
+# ── Tests ─────────────────────────────────────────────────────────────
+pytest
+httpx                  # Client HTTP pour tester les routes FastAPI

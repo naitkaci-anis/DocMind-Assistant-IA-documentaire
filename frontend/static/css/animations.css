@@ -1,0 +1,65 @@
+/* ============================================================
+   animations.css — DocMind
+   Toutes les @keyframes du thème violet dark.
+   Importé par theme.css.
+   ============================================================ */
+
+@keyframes glow-title {
+    0%, 100% {
+        text-shadow:
+            0 0 20px rgba(192, 132, 252, 0.55),
+            0 0 50px rgba(147, 51, 234, 0.35);
+    }
+    50% {
+        text-shadow:
+            0 0 35px rgba(232, 121, 249, 0.90),
+            0 0 80px rgba(192, 132, 252, 0.60),
+            0 0 130px rgba(147, 51, 234, 0.30);
+    }
+}
+
+@keyframes card-breathe {
+    0%, 100% {
+        box-shadow:
+            0 0 0 1px rgba(147, 51, 234, 0.25),
+            0 8px 32px rgba(0, 0, 0, 0.55);
+    }
+    50% {
+        box-shadow:
+            0 0 0 1px rgba(192, 132, 252, 0.55),
+            0 8px 48px rgba(147, 51, 234, 0.22);
+    }
+}
+
+@keyframes btn-glow {
+    0%, 100% {
+        box-shadow:
+            0 0 12px rgba(147, 51, 234, 0.50),
+            0 4px 18px rgba(0, 0, 0, 0.45);
+    }
+    50% {
+        box-shadow:
+            0 0 28px rgba(192, 132, 252, 0.80),
+            0 8px 36px rgba(147, 51, 234, 0.40);
+    }
+}
+
+@keyframes shimmer-line {
+    0%   { background-position: -600px 0; }
+    100% { background-position:  600px 0; }
+}
+
+@keyframes float-up {
+    0%, 100% { transform: translateY(0);    }
+    50%       { transform: translateY(-3px); }
+}
+
+@keyframes pulse-border {
+    0%, 100% { border-color: rgba(147, 51, 234, 0.40); }
+    50%       { border-color: rgba(192, 132, 252, 0.75); }
+}
+
+@keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0);    }
+}

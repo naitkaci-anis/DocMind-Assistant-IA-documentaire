@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+
+{% block title %}Documents{% endblock %}
+{% block nav_documents %}active{% endblock %}
+{% block page_title %}📚 Documents{% endblock %}
+{% block page_subtitle %}Gère tes fichiers indexés — importe, consulte ou supprime{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Zone upload améliorée */
+.upload-zone-card {
+    border: 2px dashed rgba(139,92,246,.35);
+    background: rgba(139,92,246,.04);
+    border-radius: var(--r-lg);
+    padding: 2.5rem 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all var(--t-slow);
+    margin-bottom: 1.5rem;
+    position: relative; overflow: hidden;
+}
+.upload-zone-card:hover, .upload-zone-card.drag-over {
+    border-color: var(--primary);
+    background: var(--primary-dim);
+    box-shadow: 0 0 30px rgba(139,92,246,.12);
+}
+.upload-zone-card.drag-over { transform: scale(1.01); }
+.upload-zone-icon { font-size: 2.8rem; margin-bottom: .75rem; }
+.upload-zone-title { font-size: 1.1rem; font-weight: 700; margin-bottom: .3rem; }
+.upload-zone-sub { color: var(--text-muted); font-size: .88rem; margin-bottom: .2rem; }
+.upload-zone-formats { font-size: .75rem; color: var(--text-faint); }
+.upload-zone-btn {
+    display: inline-block; margin-top: 1rem;
+    padding: .5rem 1.2rem;
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm);
+    font-size: .85rem; color: var(--text-2);
+    background: rgba(255,255,255,.05);
+    transition: all var(--t);
+    cursor: pointer;
+}
+.upload-zone-btn:hover { background: var(--primary-dim); border-color: var(--primary); color: var(--text); }
+
+/* Progress bar upload */
+.upload-prog-area { margin-top: 1rem; display: none; }
+.upload-prog-file { font-size: .85rem; color: var(--text-muted); margin-bottom: .5rem; display: flex; align-items: center; gap: .5rem; }
+
+/* Toolbar */
+.docs-toolbar-v2 {
+    display: flex; align-items: center; gap: 1rem;
+    margin-bottom: 1.25rem; flex-wrap: wrap;
+}
+.search-field-wrap { position: relative; flex: 1; min-width: 200px; }
+.search-field-wrap .search-icon {
+    position: absolute; left: .9rem; top: 50%;
+    transform: translateY(-50%); color: var(--text-faint); font-size: .95rem;
+    pointer-events: none;
+}
+.search-field-wrap .search-input { padding-left: 2.3rem; }
+.docs-count-badge {
+    background: var(--primary-dim); border: 1px solid var(--border);
+    border-radius: 20px; padding: 4px 12px;
+    font-size: .78rem; color: var(--primary-light); white-space: nowrap;
+}
+
+/* Table améliorée */
+.docs-table-wrap { overflow-x: auto; }
+.docs-table { min-width: 600px; }
+.docs-table th { background: rgba(0,0,0,.2); }
+.doc-name-cell { display: flex; align-items: center; gap: .6rem; }
+.doc-type-icon {
+    width: 28px; height: 28px;
+    border-radius: var(--r-xs);
+    background: var(--primary-dim);
+    display: grid; place-items: center;
+    font-size: .85rem; flex-shrink: 0;
+}
+.doc-name-text { font-weight: 500; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Empty state */
+.empty-docs {
+    text-align: center; padding: 4rem 2rem;
+    color: var(--text-muted);
+}
+.empty-docs-icon { font-size: 3.5rem; margin-bottom: 1rem; opacity: .4; }
+.empty-docs h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: .4rem; color: var(--text-2); }
+.empty-docs p  { font-size: .875rem; max-width: 320px; margin: 0 auto; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Zone d'upload principale -->
+<div class="glass-card" style="padding:0;overflow:hidden;margin-bottom:1.25rem">
+    <div class="upload-zone-card" id="main-drop-zone"
+         ondragover="handleDragOver(event)"
+         ondragleave="handleDragLeave(event)"
+         ondrop="handleDrop(event)"
+         onclick="document.getElementById('main-file-input').click()">
+        <div class="upload-zone-icon">📤</div>
+        <div class="upload-zone-title">Dépose ton fichier ici</div>
+        <div class="upload-zone-sub">ou clique pour sélectionner</div>
+        <div class="upload-zone-formats">PDF · DOCX · TXT · Markdown · CSV — max 50 Mo</div>
+        <div class="upload-zone-btn" onclick="event.stopPropagation(); document.getElementById('main-file-input').click()">Parcourir les fichiers</div>
+        <input type="file" id="main-file-input" accept=".pdf,.docx,.txt,.md,.csv" hidden onchange="handleFileSelect(this.files[0])">
+    </div>
+    <div class="upload-prog-area" id="upload-prog-area" style="display:none; padding:0 1.5rem 1.2rem">
+        <div class="upload-prog-file">
+            <span id="upload-file-name">Fichier…</span>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="upload-prog-fill" style="width:0%"></div>
+        </div>
+        <div class="progress-label" id="upload-prog-label">Préparation…</div>
+    </div>
+</div>
+
+<!-- Toolbar -->
+<div class="docs-toolbar-v2">
+    <div class="search-field-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="doc-search" class="search-input"
+               placeholder="Filtrer par nom…" oninput="filterDocuments(this.value)">
+    </div>
+    <span class="docs-count-badge" id="docs-count">Chargement…</span>
+</div>
+
+<!-- Table -->
+<div class="glass-card" style="padding:0; overflow:hidden">
+    <div class="docs-table-wrap">
+        <table class="docs-table" id="docs-table">
+            <thead>
+                <tr>
+                    <th style="padding-left:1.2rem">Fichier</th>
+                    <th>Statut</th>
+                    <th>Chunks</th>
+                    <th>Taille</th>
+                    <th>Date d'ajout</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="docs-tbody">
+                <tr><td colspan="6" class="loading-spinner">⏳ Chargement des documents…</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/documents.js"></script>
+<script>
+/* Upload via drag & drop sur la zone principale */
+function handleDragOver(e) {
+    e.preventDefault();
+    document.getElementById('main-drop-zone').classList.add('drag-over');
+}
+function handleDragLeave(e) {
+    document.getElementById('main-drop-zone').classList.remove('drag-over');
+}
+function handleDrop(e) {
+    e.preventDefault();
+    document.getElementById('main-drop-zone').classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file) handleFileSelect(file);
+}
+function handleFileSelect(file) {
+    if (!file) return;
+    const allowed = ['.pdf','.docx','.txt','.md','.csv'];
+    const ext = '.' + file.name.split('.').pop().toLowerCase();
+    if (!allowed.includes(ext)) {
+        alert('Format non supporté. Utilise PDF, DOCX, TXT, MD ou CSV.');
+        return;
+    }
+    uploadFile(file);
+}
+
+async function uploadFile(file) {
+    const progArea = document.getElementById('upload-prog-area');
+    const progFill = document.getElementById('upload-prog-fill');
+    const progLbl  = document.getElementById('upload-prog-label');
+    const progName = document.getElementById('upload-file-name');
+
+    progArea.style.display = 'block';
+    progName.textContent = file.name;
+    progFill.style.width = '5%';
+    progLbl.textContent = 'Envoi…';
+
+    try {
+        const fd = new FormData();
+        fd.append('file', file);
+        const res = await fetch('/api/upload/', { method: 'POST', body: fd });
+        if (!res.ok) {
+            const d = await res.json();
+            alert(d.detail || 'Erreur lors de l\'upload');
+            progArea.style.display = 'none';
+            return;
+        }
+        const data = await res.json();
+        progFill.style.width = '25%';
+        progLbl.textContent = 'Indexation en cours…';
+
+        // Polling statut
+        let tries = 0;
+        const poll = setInterval(async () => {
+            tries++;
+            if (tries > 60) { clearInterval(poll); progArea.style.display = 'none'; loadDocuments(); return; }
+            try {
+                const sr   = await fetch(`/api/upload/${data.doc_id}/status`);
+                const sdat = await sr.json();
+                const pct  = Math.min(25 + tries * 1.2, 95);
+                progFill.style.width = pct + '%';
+                if (sdat.status === 'indexed') {
+                    clearInterval(poll);
+                    progFill.style.width = '100%';
+                    progLbl.textContent = '✅ Indexé avec succès !';
+                    setTimeout(() => { progArea.style.display = 'none'; progFill.style.width = '0%'; }, 1800);
+                    loadDocuments();
+                } else if (sdat.status === 'error') {
+                    clearInterval(poll);
+                    progLbl.textContent = '❌ Erreur d\'indexation';
+                    setTimeout(() => { progArea.style.display = 'none'; }, 2500);
+                    loadDocuments();
+                }
+            } catch {}
+        }, 2000);
+    } catch {
+        alert('Erreur réseau lors de l\'upload');
+        progArea.style.display = 'none';
+    }
+}
+</script>
+{% endblock %}

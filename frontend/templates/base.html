@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}DocMind{% endblock %} — Assistant IA documentaire</title>
+
+    <!-- Anti-flash : applique le thème AVANT le rendu (évite le flash blanc) -->
+    <script>
+    try {
+        var _t = localStorage.getItem('docmind-theme') ||
+                 (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', _t);
+    } catch(e) { document.documentElement.setAttribute('data-theme','dark'); }
+    </script>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/static/css/style.css">
+    {% block extra_css %}{% endblock %}
+
+    <style>
+    /* Micro-animations stagger pour les metric cards */
+    .metric-card:nth-child(1) { animation-delay: .04s; }
+    .metric-card:nth-child(2) { animation-delay: .08s; }
+    .metric-card:nth-child(3) { animation-delay: .12s; }
+    .metric-card:nth-child(4) { animation-delay: .16s; }
+    .metric-card:nth-child(5) { animation-delay: .20s; }
+    .feature-card:nth-child(1) { animation-delay: .06s; }
+    .feature-card:nth-child(2) { animation-delay: .12s; }
+    .feature-card:nth-child(3) { animation-delay: .18s; }
+    .feature-card:nth-child(4) { animation-delay: .24s; }
+    </style>
+</head>
+<body>
+
+<!-- Fond animé -->
+<canvas id="stars-canvas"></canvas>
+
+<!-- ═══════════════════ SIDEBAR ═══════════════════ -->
+<nav class="sidebar">
+
+    <!-- Logo -->
+    <a href="/" class="sidebar-logo" title="Page d'accueil">
+        <span class="logo-icon">🧠</span>
+        <span class="logo-text">DocMind</span>
+    </a>
+
+    <!-- Profil utilisateur -->
+    <div class="sidebar-user">
+        <div class="user-avatar">{{ 'A' if is_guest else (username[0] | upper if username else '?') }}</div>
+        <span class="user-name">{{ 'Anonyme' if is_guest else username }}</span>
+        <button class="logout-btn" onclick="logoutUser()" title="Se déconnecter">⏻</button>
+    </div>
+
+    <!-- Navigation -->
+    <ul class="sidebar-nav">
+        <li>
+            <a href="/dashboard" class="nav-item {% block nav_home %}{% endblock %}">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+                </span>
+                <span class="nav-label">Dashboard</span>
+            </a>
+        </li>
+        <li>
+            <a href="/documents" class="nav-item {% block nav_documents %}{% endblock %}">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                </span>
+                <span class="nav-label">Documents</span>
+            </a>
+        </li>
+        <li>
+            <a href="/search" class="nav-item {% block nav_search %}{% endblock %}">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                </span>
+                <span class="nav-label">Recherche</span>
+            </a>
+        </li>
+        <li>
+            <a href="/chat" class="nav-item {% block nav_chat %}{% endblock %}">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                </span>
+                <span class="nav-label">Chat</span>
+            </a>
+        </li>
+        <li>
+            <a href="/summary" class="nav-item {% block nav_summary %}{% endblock %}">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+                </span>
+                <span class="nav-label">Résumés</span>
+            </a>
+        </li>
+    </ul>
+
+    <!-- Footer sidebar : statut IA + version + toggle thème -->
+    <div class="sidebar-footer">
+        <div class="status-dot" id="ollama-status" title="Statut IA"></div>
+        <span class="version-tag">v2.1</span>
+        <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Changer le thème">
+            <!-- Soleil : affiché en mode sombre (pour basculer vers clair) -->
+            <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="5"/>
+                <line x1="12" y1="1"  x2="12" y2="3"/>
+                <line x1="12" y1="21" x2="12" y2="23"/>
+                <line x1="4.22"  y1="4.22"  x2="5.64"  y2="5.64"/>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                <line x1="1"  y1="12" x2="3"  y2="12"/>
+                <line x1="21" y1="12" x2="23" y2="12"/>
+                <line x1="4.22"  y1="19.78" x2="5.64"  y2="18.36"/>
+                <line x1="18.36" y1="5.64"  x2="19.78" y2="4.22"/>
+            </svg>
+            <!-- Lune : affiché en mode clair (pour basculer vers sombre) -->
+            <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+        </button>
+    </div>
+
+</nav>
+
+<!-- ═══════════════════ BANNIÈRE INVITÉ ═══════════════════ -->
+{% if is_guest %}
+<div class="guest-banner" id="guest-banner">
+    <span class="guest-banner-text">
+        🎮 Mode essai —
+        <strong><span id="guest-doc-count">…</span> / 3 documents</strong> utilisés
+    </span>
+    <div class="guest-banner-actions">
+        <a href="/register" class="btn btn-primary btn-sm">✨ Créer un compte gratuit</a>
+        <a href="/login"    class="btn btn-ghost   btn-sm">Se connecter</a>
+    </div>
+</div>
+{% endif %}
+
+<!-- ═══════════════════ CONTENU PRINCIPAL ═══════════════════ -->
+<main class="main-content {% if is_guest %}has-guest-banner{% endif %}">
+
+    <div class="page-header">
+        <h1 class="page-title">{% block page_title %}DocMind{% endblock %}</h1>
+        <p class="page-subtitle">{% block page_subtitle %}{% endblock %}</p>
+    </div>
+
+    <div class="page-body">
+        {% block content %}{% endblock %}
+    </div>
+
+</main>
+
+<!-- ═══════════════════ SCRIPTS ═══════════════════ -->
+<script src="/static/js/theme.js"></script>
+<script src="/static/js/stars.js"></script>
+<script src="/static/js/upload-widget.js"></script>
+<script>
+/* ── Active nav link ── */
+document.querySelectorAll('.nav-item').forEach(link => {
+    if (link.getAttribute('href') === window.location.pathname)
+        link.classList.add('active');
+});
+
+/* ── Ollama / IA status ── */
+async function checkStatus() {
+    const dot = document.getElementById('ollama-status');
+    if (!dot) return;
+    try {
+        const res  = await fetch('/api/health');
+        const data = await res.json();
+        const ok   = data.ollama === 'ok';
+        dot.classList.toggle('ok',  ok);
+        dot.classList.toggle('err', !ok);
+        dot.title = ok
+            ? `IA en ligne — ${(data.models||[]).join(', ')||'modèle actif'}`
+            : 'IA hors ligne — lance "ollama serve"';
+    } catch {
+        dot.classList.remove('ok');
+        dot.classList.add('err');
+        dot.title = 'Impossible de joindre le serveur IA';
+    }
+}
+checkStatus();
+setInterval(checkStatus, 30000);
+
+/* ── Logout ── */
+async function logoutUser() {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    window.location.href = '/';
+}
+
+/* ── Guest doc count ── */
+{% if is_guest %}
+async function loadGuestDocCount() {
+    try {
+        const res  = await fetch('/api/upload/');
+        const data = await res.json();
+        const el   = document.getElementById('guest-doc-count');
+        if (el) {
+            el.textContent = data.total || 0;
+            if ((data.total || 0) >= 3) el.style.color = '#ef4444';
+        }
+    } catch {}
+}
+loadGuestDocCount();
+{% endif %}
+</script>
+{% block extra_js %}{% endblock %}
+
+</body>
+</html>

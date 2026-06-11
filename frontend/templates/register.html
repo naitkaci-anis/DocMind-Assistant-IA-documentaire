@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription — DocMind</title>
+    <!-- Anti-flash thème -->
+    <script>try{var _t=localStorage.getItem('docmind-theme')||(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',_t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}</script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        body { overflow: hidden; }
+        @media (max-width: 900px) { body { overflow: auto; } }
+
+        .star-field { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+        .star {
+            position: absolute; width: 2px; height: 2px;
+            background: white; border-radius: 50%;
+            animation: twinkle ease-in-out infinite;
+        }
+        @keyframes twinkle {
+            0%,100% { opacity: .15; } 50% { opacity: .7; }
+        }
+        .orb { position: absolute; border-radius: 50%; filter: blur(65px); opacity: .45; animation: orb-float ease-in-out infinite; }
+        .orb-1 { width: 300px; height: 300px; background: #6d28d9; top: -60px; right: -60px; animation-duration: 16s; }
+        .orb-2 { width: 240px; height: 240px; background: #0e7490; bottom: -50px; left: -50px; animation-duration: 19s; animation-delay: -8s; }
+        .orb-3 { width: 160px; height: 160px; background: #7c3aed; top: 55%; left: 35%; animation-duration: 12s; animation-delay: -4s; opacity: .25; }
+        @keyframes orb-float {
+            0%,100% { transform: translate(0,0); }
+            33%      { transform: translate(18px,-12px); }
+            66%      { transform: translate(-14px,18px); }
+        }
+
+        .btn-submit {
+            width: 100%; justify-content: center;
+            padding: .78rem; font-size: .95rem; margin-top: .4rem;
+            position: relative; overflow: hidden;
+        }
+        .btn-submit::after {
+            content: ""; position: absolute; top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,.15), transparent);
+            transition: left .5s;
+        }
+        .btn-submit:hover::after { left: 100%; }
+
+        /* Optional section collapsible */
+        .optional-section {
+            background: var(--primary-dim);
+            border: 1px solid var(--border);
+            border-radius: var(--r-sm);
+            overflow: hidden;
+        }
+        .optional-toggle {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: .65rem .9rem;
+            cursor: pointer; font-size: .82rem;
+            color: var(--text-muted); user-select: none;
+            transition: color var(--t);
+        }
+        .optional-toggle:hover { color: var(--primary-light); }
+        .optional-content { padding: .75rem .9rem; border-top: 1px solid var(--border); }
+    </style>
+</head>
+<body>
+<canvas id="stars-canvas"></canvas>
+
+<div class="auth-split">
+
+    <!-- ══════════ PANNEAU GAUCHE ══════════ -->
+    <div class="auth-panel-left">
+        <div class="star-field" id="star-field"></div>
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+
+        <div class="auth-left-top">
+            <div class="auth-brand">
+                <span class="auth-brand-icon">🧠</span>
+                <span class="auth-brand-name">DocMind</span>
+            </div>
+        </div>
+
+        <div class="auth-left-middle">
+            <h2 class="auth-left-title">
+                Commence<br>
+                <span>gratuitement</span><br>
+                en 30 secondes.
+            </h2>
+            <p class="auth-left-sub">
+                Crée ton espace personnel. Tes documents, tes conversations et tes résumés — rien ne se mélange avec les autres.
+            </p>
+            <ul class="auth-features">
+                <li>Espace personnel isolé et sécurisé</li>
+                <li>Formats PDF, DOCX, TXT, MD, CSV</li>
+                <li>Conversations sauvegardées</li>
+                <li>Résumés téléchargeables</li>
+            </ul>
+        </div>
+
+        <div class="auth-left-bottom">
+            <a href="/login" class="auth-try-link">
+                ← Déjà un compte ? Se connecter
+            </a>
+        </div>
+    </div>
+
+    <!-- ══════════ PANNEAU DROIT — Formulaire ══════════ -->
+    <div class="auth-panel-right">
+        <div class="auth-form-wrap">
+
+            <div style="margin-bottom: 1.75rem; text-align: center;">
+                <h1 class="auth-title">Créer un compte ✨</h1>
+                <p class="auth-subtitle">Ton espace IA documentaire en quelques secondes</p>
+            </div>
+
+            <form id="register-form" class="auth-form" onsubmit="submitRegister(event)" autocomplete="on">
+
+                <div class="auth-field">
+                    <label class="auth-label" for="username">Nom d'utilisateur</label>
+                    <input
+                        type="text" id="username" class="auth-input"
+                        placeholder="ton_pseudo (3–30 caractères)"
+                        autocomplete="username" minlength="3" maxlength="30" required autofocus
+                    >
+                </div>
+
+                <div class="auth-field">
+                    <label class="auth-label" for="password">Mot de passe</label>
+                    <div class="auth-input-wrap">
+                        <input
+                            type="password" id="password" class="auth-input"
+                            placeholder="Minimum 6 caractères"
+                            autocomplete="new-password" minlength="6" required
+                        >
+                        <button type="button" class="auth-eye" onclick="togglePwd('password')">👁</button>
+                    </div>
+                    <div class="password-strength" id="strength-bar" style="display:none">
+                        <div class="strength-fill" id="strength-fill"></div>
+                    </div>
+                    <p class="strength-label" id="strength-label" style="display:none"></p>
+                </div>
+
+                <div class="auth-field">
+                    <label class="auth-label" for="password2">Confirmer le mot de passe</label>
+                    <div class="auth-input-wrap">
+                        <input
+                            type="password" id="password2" class="auth-input"
+                            placeholder="Répète ton mot de passe"
+                            autocomplete="new-password" required
+                        >
+                        <button type="button" class="auth-eye" onclick="togglePwd('password2')">👁</button>
+                    </div>
+                </div>
+
+                <!-- Question secrète — optionnel -->
+                <div class="optional-section">
+                    <div class="optional-toggle" onclick="toggleOptional()">
+                        <span>🔑 Question secrète (récupération de compte)</span>
+                        <span id="optional-arrow">›</span>
+                    </div>
+                    <div id="optional-content" style="display:none">
+                        <div class="optional-content">
+                            <div class="auth-field" style="margin-bottom:.75rem">
+                                <label class="auth-label" for="security-question">Question</label>
+                                <select id="security-question" class="auth-input select-input">
+                                    <option value="">— Choisir une question —</option>
+                                    <option>Quel est le nom de ton premier animal ?</option>
+                                    <option>Quel est le nom de ta ville natale ?</option>
+                                    <option>Quel est le prénom de ta mère ?</option>
+                                    <option>Quel était le nom de ton école primaire ?</option>
+                                    <option>Quelle est ta couleur préférée ?</option>
+                                    <option>Quel est le prénom de ton meilleur ami d'enfance ?</option>
+                                </select>
+                            </div>
+                            <div class="auth-field" id="answer-field" style="display:none">
+                                <label class="auth-label" for="security-answer">Ta réponse secrète</label>
+                                <input type="text" id="security-answer" class="auth-input"
+                                       placeholder="Réponse (insensible à la casse)" autocomplete="off">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Erreur -->
+                <div id="reg-error" class="auth-error" style="display:none"></div>
+
+                <button type="submit" class="btn btn-primary btn-submit" id="register-btn">
+                    Créer mon compte →
+                </button>
+
+            </form>
+
+            <div class="auth-switch" style="margin-top: 1rem;">
+                Déjà un compte ?
+                <a href="/login" class="auth-link">Se connecter</a>
+            </div>
+            <div class="auth-switch" style="margin-top:.6rem">
+                <a href="/" style="color:var(--text-faint);font-size:.8rem">← Retour à l'accueil</a>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<script src="/static/js/theme.js"></script>
+<script src="/static/js/stars.js"></script>
+<!-- Bouton thème flottant -->
+<button class="page-theme-btn" onclick="toggleTheme()" title="Changer le thème">
+    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+</button>
+<script>
+/* Étoiles */
+const sf = document.getElementById('star-field');
+if (sf) {
+    for (let i = 0; i < 50; i++) {
+        const s = document.createElement('div');
+        s.className = 'star';
+        s.style.left = Math.random() * 100 + '%';
+        s.style.top  = Math.random() * 100 + '%';
+        s.style.animationDuration = (2 + Math.random() * 5) + 's';
+        s.style.animationDelay    = (-Math.random() * 5) + 's';
+        const sz = 1 + Math.random() * 2;
+        s.style.width = sz + 'px'; s.style.height = sz + 'px';
+        sf.appendChild(s);
+    }
+}
+
+/* Section optionnelle */
+let optOpen = false;
+function toggleOptional() {
+    optOpen = !optOpen;
+    document.getElementById('optional-content').style.display = optOpen ? 'block' : 'none';
+    document.getElementById('optional-arrow').textContent = optOpen ? '⌃' : '›';
+}
+
+/* Question → Réponse */
+document.getElementById('security-question').addEventListener('change', function () {
+    document.getElementById('answer-field').style.display = this.value ? 'flex' : 'none';
+});
+
+/* Force du mot de passe */
+document.getElementById('password').addEventListener('input', function () {
+    const bar   = document.getElementById('strength-bar');
+    const fill  = document.getElementById('strength-fill');
+    const label = document.getElementById('strength-label');
+    const pwd   = this.value;
+    if (!pwd) { bar.style.display = label.style.display = 'none'; return; }
+    bar.style.display = label.style.display = 'block';
+    let score = 0;
+    if (pwd.length >= 8)          score++;
+    if (/[A-Z]/.test(pwd))        score++;
+    if (/[0-9]/.test(pwd))        score++;
+    if (/[^A-Za-z0-9]/.test(pwd)) score++;
+    const lvls = [
+        {w:'25%', bg:'#ef4444', t:'Très faible'},
+        {w:'50%', bg:'#f97316', t:'Faible'},
+        {w:'75%', bg:'#eab308', t:'Correct'},
+        {w:'100%',bg:'#22c55e', t:'Fort ✓'},
+    ];
+    const l = lvls[Math.min(score, 3)];
+    fill.style.width = l.w; fill.style.background = l.bg;
+    label.textContent = `Force : ${l.t}`; label.style.color = l.bg;
+});
+
+/* Soumission */
+async function submitRegister(e) {
+    e.preventDefault();
+    const btn  = document.getElementById('register-btn');
+    const err  = document.getElementById('reg-error');
+    const user = document.getElementById('username').value.trim();
+    const pwd  = document.getElementById('password').value;
+    const pwd2 = document.getElementById('password2').value;
+    const q    = document.getElementById('security-question').value;
+    const a    = document.getElementById('security-answer').value.trim();
+
+    err.style.display = 'none';
+    if (pwd !== pwd2) {
+        err.textContent   = 'Les mots de passe ne correspondent pas';
+        err.style.display = 'block'; return;
+    }
+    btn.disabled    = true;
+    btn.textContent = 'Création en cours…';
+    try {
+        const res  = await fetch('/api/auth/register', {
+            method : 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body   : JSON.stringify({ username: user, password: pwd, security_question: q, security_answer: a }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+            err.textContent   = data.detail || 'Erreur lors de la création du compte';
+            err.style.display = 'block';
+            btn.disabled = false; btn.textContent = 'Créer mon compte →';
+            return;
+        }
+        window.location.href = '/';
+    } catch {
+        err.textContent   = 'Erreur réseau — serveur inaccessible';
+        err.style.display = 'block';
+        btn.disabled = false; btn.textContent = 'Créer mon compte →';
+    }
+}
+
+function togglePwd(id) {
+    const i = document.getElementById(id);
+    i.type = i.type === 'password' ? 'text' : 'password';
+}
+</script>
+</body>
+</html>

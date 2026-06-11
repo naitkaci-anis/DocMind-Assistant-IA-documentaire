@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DocMind — Assistant IA documentaire</title>
+    <!-- Anti-flash thème -->
+    <script>try{var _t=localStorage.getItem('docmind-theme')||(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',_t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}</script>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<canvas id="stars-canvas"></canvas>
+
+<!-- Blobs décoratifs (mode clair uniquement) -->
+<div class="lc-blobs" aria-hidden="true">
+    <div class="lc-blob lc-blob-1"></div>
+    <div class="lc-blob lc-blob-2"></div>
+    <div class="lc-blob lc-blob-3"></div>
+</div>
+
+<!-- ═══════════════════ NAVBAR ═══════════════════ -->
+<header class="landing-nav">
+    <a href="/" class="landing-nav-logo">
+        <span>🧠</span>
+        <span>DocMind</span>
+    </a>
+    <div class="landing-nav-actions">
+        <button class="nav-theme-btn" onclick="toggleTheme()" title="Changer le thème">
+            <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <a href="/login"    class="btn btn-ghost btn-sm">Se connecter</a>
+        <a href="/register" class="btn btn-primary btn-sm">S'inscrire gratuitement</a>
+    </div>
+</header>
+
+<!-- ═══════════════════ HERO ═══════════════════════ -->
+<section class="landing-hero">
+    <div class="landing-hero-content">
+        <span class="landing-badge">✨ 100 % local · Gratuit · Aucun cloud</span>
+        <h1 class="landing-title">
+            Ton assistant IA<br>
+            <span class="landing-title-accent">documentaire</span>
+        </h1>
+        <p class="landing-subtitle">
+            Importe tes PDF, Word et CSV — puis interroge, résume et explore<br>
+            tes documents avec l'intelligence artificielle.
+        </p>
+        <div class="landing-cta">
+            <a href="/try" class="btn btn-primary landing-btn-main">
+                🚀 Essayer sans inscription
+            </a>
+            <a href="/register" class="btn btn-ghost landing-btn-sec">
+                Créer un compte →
+            </a>
+        </div>
+    </div>
+
+    <!-- Carte démo animée — wrapper pour icônes flottantes et cerveau -->
+    <div class="lc-demo-wrap">
+        <!-- Icônes fichiers flottantes (mode clair) -->
+        <div class="lc-file-icons" aria-hidden="true">
+            <div class="lc-file-icon lc-file-icon-1">📄</div>
+            <div class="lc-file-icon lc-file-icon-2">📊</div>
+            <div class="lc-file-icon lc-file-icon-3">📝</div>
+        </div>
+
+        <div class="landing-demo glass-card">
+            <div class="demo-header">
+                <span class="demo-dot red"></span>
+                <span class="demo-dot yellow"></span>
+                <span class="demo-dot green"></span>
+                <span class="demo-title">DocMind — Chat</span>
+            </div>
+            <div class="demo-messages">
+                <div class="demo-msg user">Résume le contrat en 3 points clés</div>
+                <div class="demo-msg assistant">
+                    <span class="demo-cursor">📄</span>
+                    D'après le contrat (pages 4–6) :<br>
+                    <strong>1.</strong> Durée : 12 mois renouvelables<br>
+                    <strong>2.</strong> Résiliation : 30 jours de préavis<br>
+                    <strong>3.</strong> Pénalités : 15 % du montant annuel
+                </div>
+                <div class="demo-msg user">Quelle est la date d'échéance ?</div>
+                <div class="demo-msg assistant typing" aria-label="Réponse en cours">
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cerveau flottant (mode clair) -->
+        <div class="lc-brain-icon" aria-hidden="true">🧠</div>
+    </div>
+</section>
+
+<!-- ═══════════════════ FONCTIONNALITÉS ════════════════ -->
+<section class="landing-features">
+    <h2 class="landing-section-title">Tout ce dont tu as besoin</h2>
+
+    <div class="landing-features-grid">
+        <div class="landing-feat glass-card">
+            <div class="feat-icon">📚</div>
+            <h3>Import multi-format</h3>
+            <p>PDF, Word, TXT, Markdown, CSV — indexés automatiquement en quelques secondes.</p>
+        </div>
+        <div class="landing-feat glass-card">
+            <div class="feat-icon">🔍</div>
+            <h3>Recherche RAG</h3>
+            <p>Pose une question, l'IA trouve les passages pertinents dans tes documents et génère une réponse sourcée.</p>
+        </div>
+        <div class="landing-feat glass-card">
+            <div class="feat-icon">💬</div>
+            <h3>Chat conversationnel</h3>
+            <p>Discute avec tes documents. L'IA garde le contexte de toute la conversation.</p>
+        </div>
+        <div class="landing-feat glass-card">
+            <div class="feat-icon">📝</div>
+            <h3>Résumés automatiques</h3>
+            <p>Résumé complet, version courte ou liste de points clés — en un clic.</p>
+        </div>
+        <div class="landing-feat glass-card">
+            <div class="feat-icon">🔒</div>
+            <h3>100 % sécurisé</h3>
+            <p>Tes documents restent sur ton serveur. Chaque compte est complètement isolé.</p>
+        </div>
+        <div class="landing-feat glass-card">
+            <div class="feat-icon">👤</div>
+            <h3>Multi-utilisateurs</h3>
+            <p>Chaque compte a ses propres documents, conversations et résumés complètement isolés.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════ CTA FINAL ═══════════════════════ -->
+<section class="landing-cta-section glass-card">
+    <h2>Prêt à commencer ?</h2>
+    <p>Essaie sans inscription (3 documents), ou crée un compte pour tout débloquer.</p>
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-top:0.5rem">
+        <a href="/try"      class="btn btn-primary landing-btn-main">🚀 Essayer sans inscription</a>
+        <a href="/register" class="btn btn-ghost   landing-btn-main">✨ Créer un compte gratuit</a>
+    </div>
+</section>
+
+<!-- ═══════════════════ FOOTER ══════════════════════════ -->
+<footer class="landing-footer">
+    <span>DocMind v2.1 · Propulsé par Groq &amp; FastAPI</span>
+</footer>
+
+<script src="/static/js/theme.js"></script>
+<script src="/static/js/stars.js"></script>
+<script>
+/* Particules flottantes (mode clair uniquement) */
+(function () {
+    var colors = [
+        'rgba(124,92,255,.45)',
+        'rgba(255,93,177,.35)',
+        'rgba(61,242,212,.32)'
+    ];
+    for (var i = 0; i < 20; i++) {
+        var p = document.createElement('div');
+        p.className = 'lc-particle';
+        var sz = 2 + Math.random() * 3.5;
+        p.style.cssText =
+            'width:'  + sz + 'px;' +
+            'height:' + sz + 'px;' +
+            'left:'   + (Math.random() * 100) + '%;' +
+            'top:'    + (15 + Math.random() * 80) + '%;' +
+            'background:' + colors[Math.floor(Math.random() * colors.length)] + ';' +
+            'animation-duration:' + (9 + Math.random() * 14) + 's;' +
+            'animation-delay:'    + (-Math.random() * 12) + 's;';
+        document.body.appendChild(p);
+    }
+})();
+</script>
+
+</body>
+</html>

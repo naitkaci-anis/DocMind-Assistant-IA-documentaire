@@ -1,0 +1,290 @@
+/* ============================================================
+   theme.css — DocMind
+   Thème dark violet professionnel pour Streamlit.
+   Glassmorphism + animations (voir animations.css).
+   ============================================================ */
+
+
+/* ── Reset & fond ─────────────────────────────────────────── */
+
+.stApp,
+.appview-container,
+.main {
+    background: transparent !important;
+}
+
+.block-container {
+    padding-top: 2.5rem !important;
+    background: transparent !important;
+    max-width: 1200px !important;
+    animation: fade-in-up 0.5s ease both;
+}
+
+
+/* ── Sidebar ─────────────────────────────────────────────── */
+
+[data-testid="stSidebar"] {
+    background: rgba(12, 0, 32, 0.78) !important;
+    backdrop-filter: blur(18px) saturate(120%) !important;
+    border-right: 1px solid rgba(147, 51, 234, 0.30) !important;
+    box-shadow: 4px 0 40px rgba(0, 0, 0, 0.60) !important;
+}
+
+[data-testid="stSidebar"] .stMarkdown p,
+[data-testid="stSidebar"] span,
+[data-testid="stSidebar"] label {
+    color: #e9d5ff !important;
+}
+
+[data-testid="stSidebarNav"] a span {
+    color: #c4b5fd !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.2px !important;
+    transition: color 0.2s !important;
+}
+
+[data-testid="stSidebarNav"] a:hover span {
+    color: #f0e6ff !important;
+}
+
+
+/* ── Typographie ─────────────────────────────────────────── */
+
+h1 {
+    color: #f5f0ff !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.5px !important;
+    animation: glow-title 3.5s ease-in-out infinite !important;
+}
+
+h2 {
+    color: #ede9fe !important;
+    font-weight: 700 !important;
+    text-shadow: 0 0 22px rgba(192, 132, 252, 0.35) !important;
+}
+
+h3 {
+    color: #ddd6fe !important;
+    font-weight: 600 !important;
+}
+
+p, li, label, span {
+    color: #e9d5ff !important;
+}
+
+[data-testid="stCaptionContainer"] p {
+    color: #a78bfa !important;
+    font-size: 0.85rem !important;
+    opacity: 0.85 !important;
+}
+
+
+/* ── Métriques — glassmorphism ───────────────────────────── */
+
+[data-testid="metric-container"] {
+    background: rgba(25, 0, 55, 0.55) !important;
+    backdrop-filter: blur(14px) saturate(110%) !important;
+    border-radius: 16px !important;
+    border: 1px solid rgba(147, 51, 234, 0.35) !important;
+    padding: 1.2rem 1rem !important;
+    animation: card-breathe 4s ease-in-out infinite !important;
+    transition: transform 0.2s !important;
+}
+
+[data-testid="metric-container"]:hover {
+    transform: translateY(-3px) !important;
+}
+
+[data-testid="metric-container"] [data-testid="stMetricValue"] {
+    color: #f5f0ff !important;
+    font-weight: 800 !important;
+    font-size: 2rem !important;
+    text-shadow: 0 0 18px rgba(192, 132, 252, 0.65) !important;
+}
+
+[data-testid="metric-container"] [data-testid="stMetricLabel"] {
+    color: #c084fc !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.3px !important;
+    text-transform: uppercase !important;
+    font-size: 0.75rem !important;
+}
+
+
+/* ── Boutons ─────────────────────────────────────────────── */
+
+.stButton > button {
+    background: linear-gradient(135deg, #5b21b6 0%, #7c3aed 45%, #9333ea 100%) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(192, 132, 252, 0.40) !important;
+    border-radius: 10px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.4px !important;
+    padding: 0.55rem 1.5rem !important;
+    transition: transform 0.15s ease, filter 0.15s ease !important;
+    animation: btn-glow 3.5s ease-in-out infinite !important;
+}
+
+.stButton > button:hover {
+    transform: translateY(-2px) scale(1.025) !important;
+    filter: brightness(1.20) !important;
+}
+
+.stButton > button:active {
+    transform: scale(0.98) !important;
+}
+
+.stButton > button[kind="secondary"] {
+    background: rgba(15, 0, 40, 0.65) !important;
+    border: 1px solid rgba(147, 51, 234, 0.55) !important;
+    color: #d8b4fe !important;
+    animation: pulse-border 4s ease-in-out infinite, btn-glow 5s ease-in-out infinite !important;
+}
+
+
+/* ── Expanders ───────────────────────────────────────────── */
+
+[data-testid="stExpander"] {
+    background: rgba(18, 0, 40, 0.58) !important;
+    backdrop-filter: blur(12px) !important;
+    border: 1px solid rgba(147, 51, 234, 0.28) !important;
+    border-radius: 14px !important;
+    animation: card-breathe 6s ease-in-out infinite !important;
+    transition: transform 0.2s !important;
+}
+
+[data-testid="stExpander"]:hover {
+    transform: translateY(-2px) !important;
+}
+
+[data-testid="stExpander"] summary {
+    color: #c084fc !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.3px !important;
+}
+
+
+/* ── File uploader ───────────────────────────────────────── */
+
+[data-testid="stFileUploader"] {
+    background: rgba(18, 0, 42, 0.52) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 2px dashed rgba(147, 51, 234, 0.50) !important;
+    border-radius: 18px !important;
+    animation: pulse-border 3.5s ease-in-out infinite !important;
+    padding: 0.5rem !important;
+    transition: background 0.3s !important;
+}
+
+[data-testid="stFileUploader"]:hover {
+    background: rgba(30, 0, 65, 0.60) !important;
+}
+
+[data-testid="stFileUploaderDropzoneInstructions"] span,
+[data-testid="stFileUploaderDropzoneInstructions"] small {
+    color: #c084fc !important;
+}
+
+
+/* ── Alertes ─────────────────────────────────────────────── */
+
+[data-testid="stAlert"] {
+    background: rgba(18, 0, 42, 0.68) !important;
+    backdrop-filter: blur(10px) !important;
+    border-radius: 12px !important;
+    border-left: 3px solid #9333ea !important;
+    animation: float-up 3s ease-in-out infinite !important;
+}
+
+[data-testid="stAlert"] p {
+    color: #e9d5ff !important;
+}
+
+
+/* ── Divider ─────────────────────────────────────────────── */
+
+hr {
+    border: none !important;
+    height: 1px !important;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(147, 51, 234, 0.18) 15%,
+        rgba(192, 132, 252, 0.70) 50%,
+        rgba(147, 51, 234, 0.18) 85%,
+        transparent 100%
+    ) !important;
+    background-size: 600px 1px !important;
+    animation: shimmer-line 3.5s linear infinite !important;
+    margin: 1.8rem 0 !important;
+}
+
+
+/* ── DataFrame ───────────────────────────────────────────── */
+
+[data-testid="stDataFrame"] {
+    background: rgba(12, 0, 30, 0.65) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(147, 51, 234, 0.32) !important;
+    border-radius: 14px !important;
+    overflow: hidden !important;
+    animation: card-breathe 7s ease-in-out infinite !important;
+}
+
+
+/* ── Selectbox ───────────────────────────────────────────── */
+
+[data-baseweb="select"] > div {
+    background: rgba(18, 0, 42, 0.72) !important;
+    border: 1px solid rgba(147, 51, 234, 0.48) !important;
+    border-radius: 10px !important;
+    color: #e9d5ff !important;
+}
+
+
+/* ── Tableaux markdown ───────────────────────────────────── */
+
+table {
+    background: rgba(12, 0, 30, 0.55) !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    width: 100% !important;
+}
+
+th {
+    background: rgba(109, 40, 217, 0.38) !important;
+    color: #f5f0ff !important;
+    font-weight: 700 !important;
+    padding: 0.75rem 1rem !important;
+    border-bottom: 1px solid rgba(147, 51, 234, 0.38) !important;
+    letter-spacing: 0.3px !important;
+}
+
+td {
+    color: #e9d5ff !important;
+    padding: 0.65rem 1rem !important;
+    border-bottom: 1px solid rgba(147, 51, 234, 0.12) !important;
+}
+
+tr:last-child td { border-bottom: none !important; }
+tr:hover td      { background: rgba(109, 40, 217, 0.12) !important; }
+
+
+/* ── Spinner ─────────────────────────────────────────────── */
+
+[data-testid="stSpinner"] > div {
+    border-top-color: #9333ea !important;
+}
+
+/* ── Text area (aperçu) ──────────────────────────────────── */
+
+textarea {
+    background: rgba(12, 0, 30, 0.65) !important;
+    border: 1px solid rgba(147, 51, 234, 0.40) !important;
+    border-radius: 10px !important;
+    color: #e9d5ff !important;
+    font-family: "Fira Code", "Courier New", monospace !important;
+    font-size: 0.85rem !important;
+}

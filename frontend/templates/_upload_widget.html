@@ -1,0 +1,34 @@
+{# Composant upload réutilisable — inclus dans Search, Chat, Résumés #}
+<div class="upload-widget glass-card" id="upload-widget">
+
+    <!-- En-tête cliquable pour ouvrir/fermer -->
+    <div class="upload-widget-header" onclick="toggleUploadWidget()" role="button">
+        <span>📎 Ajouter un document</span>
+        <span class="widget-toggle" id="widget-toggle-icon">▼</span>
+    </div>
+
+    <!-- Corps (masqué par défaut) -->
+    <div class="upload-widget-body" id="upload-widget-body" style="display:none">
+
+        <div class="drop-zone-mini" id="drop-zone-mini">
+            <input type="file" id="widget-file-input" accept=".pdf,.docx,.txt,.md,.csv" hidden>
+            <p>
+                Glisse un fichier ici ou
+                <button class="btn-inline" onclick="document.getElementById('widget-file-input').click()">clique pour sélectionner</button>
+            </p>
+            <p class="drop-info">PDF, DOCX, TXT, MD, CSV — 20 Mo max</p>
+        </div>
+
+        <!-- Barre de progression -->
+        <div id="widget-progress" style="display:none">
+            <div class="progress-bar" style="margin-top:0.75rem">
+                <div class="progress-fill" id="widget-progress-fill"></div>
+            </div>
+            <p class="progress-label" id="widget-progress-label"></p>
+        </div>
+
+        <!-- Message de résultat -->
+        <div id="widget-result"></div>
+
+    </div>
+</div>

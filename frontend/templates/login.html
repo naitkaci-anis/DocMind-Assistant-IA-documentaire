@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion — DocMind</title>
+    <!-- Anti-flash thème -->
+    <script>try{var _t=localStorage.getItem('docmind-theme')||(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',_t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}</script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        body { overflow: hidden; }
+        @media (max-width: 900px) { body { overflow: auto; } }
+
+        /* Étoiles flottantes sur le panneau gauche */
+        .star-field { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+        .star {
+            position: absolute;
+            width: 2px; height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle ease-in-out infinite;
+        }
+        @keyframes twinkle {
+            0%,100% { opacity: .15; transform: scale(1); }
+            50%      { opacity: .7;  transform: scale(1.4); }
+        }
+
+        /* Orbes animées */
+        .orb {
+            position: absolute; border-radius: 50%;
+            filter: blur(60px); opacity: .5;
+            animation: orb-float ease-in-out infinite;
+        }
+        .orb-1 { width: 320px; height: 320px; background: #7c3aed; top: -80px; left: -80px; animation-duration: 14s; }
+        .orb-2 { width: 260px; height: 260px; background: #0891b2; bottom: -60px; right: -60px; animation-duration: 18s; animation-delay: -7s; }
+        .orb-3 { width: 180px; height: 180px; background: #a855f7; top: 40%; left: 40%; animation-duration: 11s; animation-delay: -3s; opacity: .3; }
+        @keyframes orb-float {
+            0%,100% { transform: translate(0,0) scale(1); }
+            33%      { transform: translate(20px,-15px) scale(1.08); }
+            66%      { transform: translate(-15px,20px) scale(.94); }
+        }
+
+        /* Input focus glow */
+        .auth-input:focus { box-shadow: 0 0 0 3px rgba(139,92,246,.18), 0 1px 3px rgba(0,0,0,.3); }
+
+        /* Submit button shimmer */
+        .btn-submit {
+            width: 100%; justify-content: center;
+            padding: .8rem; font-size: 1rem; margin-top: .5rem;
+            position: relative; overflow: hidden;
+        }
+        .btn-submit::after {
+            content: "";
+            position: absolute; top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,.15), transparent);
+            transition: left .5s;
+        }
+        .btn-submit:hover::after { left: 100%; }
+
+        /* Forgot link */
+        .forgot-row { display: flex; justify-content: flex-end; margin-top: -.4rem; }
+        .forgot-link { font-size: .78rem; color: var(--text-muted); transition: color var(--t); }
+        .forgot-link:hover { color: var(--primary-light); }
+    </style>
+</head>
+<body>
+<canvas id="stars-canvas"></canvas>
+
+<div class="auth-split">
+
+    <!-- ══════════ PANNEAU GAUCHE — Identité ══════════ -->
+    <div class="auth-panel-left">
+        <div class="star-field" id="star-field"></div>
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+
+        <!-- Top -->
+        <div class="auth-left-top">
+            <div class="auth-brand">
+                <span class="auth-brand-icon">🧠</span>
+                <span class="auth-brand-name">DocMind</span>
+            </div>
+        </div>
+
+        <!-- Middle -->
+        <div class="auth-left-middle">
+            <h2 class="auth-left-title">
+                Votre IA<br>
+                <span>documentaire</span><br>
+                personnelle.
+            </h2>
+            <p class="auth-left-sub">
+                Interrogez, résumez et explorez vos documents avec l'intelligence artificielle. 100&nbsp;% privé, 100&nbsp;% local.
+            </p>
+            <ul class="auth-features">
+                <li>Recherche sémantique dans vos PDF & DOCX</li>
+                <li>Résumés automatiques en un clic</li>
+                <li>Chat conversationnel avec contexte</li>
+                <li>Données isolées par utilisateur</li>
+            </ul>
+        </div>
+
+        <!-- Bottom -->
+        <div class="auth-left-bottom">
+            <a href="/try" class="auth-try-link">
+                🚀 Essayer sans créer de compte →
+            </a>
+        </div>
+    </div>
+
+    <!-- ══════════ PANNEAU DROIT — Formulaire ══════════ -->
+    <div class="auth-panel-right">
+        <div class="auth-form-wrap">
+
+            <div style="margin-bottom: 2rem; text-align: center;">
+                <h1 class="auth-title">Bon retour 👋</h1>
+                <p class="auth-subtitle">Connecte-toi pour accéder à tes documents</p>
+            </div>
+
+            <form id="login-form" class="auth-form" onsubmit="submitLogin(event)" autocomplete="on">
+
+                <div class="auth-field">
+                    <label class="auth-label" for="username">Nom d'utilisateur</label>
+                    <input
+                        type="text"
+                        id="username"
+                        class="auth-input"
+                        placeholder="ton_pseudo"
+                        autocomplete="username"
+                        required
+                        autofocus
+                    >
+                </div>
+
+                <div class="auth-field">
+                    <label class="auth-label" for="password">Mot de passe</label>
+                    <div class="auth-input-wrap">
+                        <input
+                            type="password"
+                            id="password"
+                            class="auth-input"
+                            placeholder="••••••••"
+                            autocomplete="current-password"
+                            required
+                        >
+                        <button type="button" class="auth-eye" onclick="togglePwd('password')" title="Afficher">👁</button>
+                    </div>
+                </div>
+
+                <div class="forgot-row">
+                    <a href="/forgot-password" class="forgot-link">Mot de passe oublié ?</a>
+                </div>
+
+                <!-- Erreur -->
+                <div id="login-error" class="auth-error" style="display:none"></div>
+
+                <button type="submit" class="btn btn-primary btn-submit" id="login-btn">
+                    Se connecter
+                </button>
+
+            </form>
+
+            <div class="auth-divider">ou</div>
+
+            <div class="auth-switch">
+                Pas encore de compte ?
+                <a href="/register" class="auth-link">Créer un compte gratuit</a>
+            </div>
+
+            <div class="auth-switch" style="margin-top:.75rem">
+                <a href="/" class="forgot-link">← Retour à l'accueil</a>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<script src="/static/js/theme.js"></script>
+<script src="/static/js/stars.js"></script>
+<!-- Bouton thème flottant -->
+<button class="page-theme-btn" onclick="toggleTheme()" title="Changer le thème">
+    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+</button>
+<script>
+/* Étoiles scintillantes panneau gauche */
+const sf = document.getElementById('star-field');
+if (sf) {
+    for (let i = 0; i < 55; i++) {
+        const s = document.createElement('div');
+        s.className = 'star';
+        s.style.left   = Math.random() * 100 + '%';
+        s.style.top    = Math.random() * 100 + '%';
+        s.style.animationDuration  = (2 + Math.random() * 4) + 's';
+        s.style.animationDelay     = (-Math.random() * 5) + 's';
+        s.style.opacity = Math.random() * .5;
+        const size = 1 + Math.random() * 2;
+        s.style.width = size + 'px';
+        s.style.height = size + 'px';
+        sf.appendChild(s);
+    }
+}
+
+async function submitLogin(e) {
+    e.preventDefault();
+    const btn  = document.getElementById('login-btn');
+    const err  = document.getElementById('login-error');
+    const user = document.getElementById('username').value.trim();
+    const pwd  = document.getElementById('password').value;
+
+    btn.disabled    = true;
+    btn.textContent = 'Connexion en cours…';
+    err.style.display = 'none';
+
+    try {
+        const res  = await fetch('/api/auth/login', {
+            method : 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body   : JSON.stringify({ username: user, password: pwd }),
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+            err.textContent   = data.detail || 'Identifiants incorrects';
+            err.style.display = 'block';
+            btn.textContent   = 'Se connecter';
+            btn.disabled = false;
+            /* Shake animation */
+            const form = document.getElementById('login-form');
+            form.style.animation = 'none';
+            form.offsetHeight;
+            form.style.animation = 'shake .35s ease';
+            return;
+        }
+        window.location.href = '/';
+    } catch {
+        err.textContent   = 'Erreur réseau — serveur inaccessible';
+        err.style.display = 'block';
+        btn.disabled    = false;
+        btn.textContent = 'Se connecter';
+    }
+}
+
+function togglePwd(id) {
+    const i = document.getElementById(id);
+    i.type  = i.type === 'password' ? 'text' : 'password';
+}
+
+document.getElementById('password').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('login-form').dispatchEvent(new Event('submit', {cancelable:true, bubbles:true}));
+});
+</script>
+<style>
+@keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20%      { transform: translateX(-6px); }
+    40%      { transform: translateX(6px); }
+    60%      { transform: translateX(-4px); }
+    80%      { transform: translateX(4px); }
+}
+</style>
+</body>
+</html>

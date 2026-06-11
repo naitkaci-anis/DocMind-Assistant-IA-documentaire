@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block title %}Recherche{% endblock %}
+{% block nav_search %}active{% endblock %}
+{% block page_title %}🔍 Recherche{% endblock %}
+{% block page_subtitle %}Pose une question — DocMind génère une réponse à partir de tes documents{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Zone de recherche premium */
+.search-hero {
+    background: linear-gradient(135deg, rgba(109,40,217,.12), rgba(8,145,178,.08));
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 1.75rem;
+    margin-bottom: 1.5rem;
+    position: relative; overflow: hidden;
+}
+.search-hero::before {
+    content: "";
+    position: absolute; top: 0; right: 0;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(139,92,246,.12), transparent 70%);
+    pointer-events: none;
+}
+.search-hero-label { font-size: .72rem; color: var(--accent); text-transform: uppercase; letter-spacing: .1em; font-weight: 600; margin-bottom: .75rem; }
+.search-input-row { display: flex; gap: .75rem; }
+.search-input-big {
+    flex: 1;
+    background: rgba(255,255,255,.06);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-sm);
+    padding: .85rem 1.1rem;
+    color: var(--text); font-size: 1rem; outline: none;
+    transition: border-color var(--t), box-shadow var(--t), background var(--t);
+}
+.search-input-big:focus {
+    border-color: var(--primary);
+    background: rgba(139,92,246,.07);
+    box-shadow: 0 0 0 3px rgba(139,92,246,.12);
+}
+.search-input-big::placeholder { color: var(--text-faint); }
+.search-btn-big { padding: .85rem 1.6rem; font-size: .95rem; white-space: nowrap; }
+
+.search-options-row {
+    display: flex; align-items: center; gap: 1.25rem;
+    margin-top: 1rem;
+    font-size: .8rem; color: var(--text-muted); flex-wrap: wrap;
+}
+.range-group { display: flex; align-items: center; gap: .5rem; }
+.range-val {
+    min-width: 18px; text-align: center;
+    color: var(--primary-light); font-weight: 700;
+}
+.search-hint { color: var(--text-faint); font-style: italic; }
+
+/* Réponse IA améliorée */
+.answer-card-header {
+    display: flex; align-items: center; gap: .75rem;
+    margin-bottom: 1rem;
+    padding-bottom: .85rem;
+    border-bottom: 1px solid var(--border);
+}
+.ai-badge {
+    display: flex; align-items: center; gap: .4rem;
+    padding: 3px 10px;
+    background: var(--primary-dim);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    font-size: .72rem; font-weight: 600;
+    color: var(--primary-light);
+}
+.ai-badge-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 6px var(--green);
+    animation: pulse-dot 1.4s infinite;
+}
+
+/* Sources */
+.sources-grid { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .5rem; }
+.source-pill {
+    display: inline-flex; align-items: center; gap: .35rem;
+    padding: 4px 12px;
+    background: var(--primary-dim);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    font-size: .78rem; color: var(--text-2);
+    transition: background var(--t);
+}
+.source-pill:hover { background: rgba(139,92,246,.25); }
+.source-pill-icon { font-size: .85rem; }
+
+/* Extraits */
+.chunks-toggle {
+    display: flex; align-items: center; gap: .5rem;
+    cursor: pointer; user-select: none;
+    font-size: .85rem; color: var(--text-muted);
+    list-style: none;
+    padding: .6rem 0;
+    transition: color var(--t);
+}
+.chunks-toggle:hover { color: var(--text-2); }
+.chunks-toggle::marker { display: none; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+{% include '_upload_widget.html' %}
+
+<!-- Zone recherche principale -->
+<div class="search-hero">
+    <div class="search-hero-label">✦ Recherche sémantique</div>
+    <div class="search-input-row">
+        <input
+            type="text"
+            id="search-input"
+            class="search-input-big"
+            placeholder="Ex : Quelles sont les conditions de résiliation du contrat ?"
+            autocomplete="off"
+            onkeydown="if(event.key==='Enter')askQuestion()"
+        >
+        <button class="btn btn-primary search-btn-big" id="search-btn" onclick="askQuestion()">
+            Rechercher →
+        </button>
+    </div>
+    <div class="search-options-row">
+        <div class="range-group">
+            <label for="n-results">Sources à analyser :</label>
+            <input type="range" id="n-results" min="2" max="10" value="5"
+                   oninput="document.getElementById('n-results-val').textContent=this.value">
+            <span class="range-val" id="n-results-val">5</span>
+        </div>
+        <span class="search-hint">↵ Entrée pour rechercher</span>
+    </div>
+</div>
+
+<!-- Réponse IA -->
+<div class="glass-card" id="answer-card" style="display:none">
+    <div class="answer-card-header">
+        <div class="ai-badge">
+            <div class="ai-badge-dot"></div>
+            Réponse IA
+        </div>
+        <span style="font-size:.8rem;color:var(--text-muted)" id="answer-meta"></span>
+    </div>
+    <div class="ai-response" id="ai-response"></div>
+    <div class="sources-section" id="sources-section" style="display:none">
+        <h3>📚 Sources utilisées</h3>
+        <div class="sources-grid" id="sources-list"></div>
+    </div>
+</div>
+
+<!-- Extraits bruts -->
+<div class="glass-card" id="chunks-card" style="display:none">
+    <details>
+        <summary class="chunks-toggle">🔎 Voir les extraits analysés (RAG chunks)</summary>
+        <div id="chunks-list" style="margin-top:1rem"></div>
+    </details>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/search.js"></script>
+{% endblock %}

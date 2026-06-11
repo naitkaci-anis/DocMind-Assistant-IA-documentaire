@@ -1,0 +1,486 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+{% block nav_home %}active{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block page_subtitle %}{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ═══════════════════════════════════════════
+   DASHBOARD PREMIUM v2 — DocMind
+   ═══════════════════════════════════════════ */
+
+/* Masque le page-header générique — on a notre propre en-tête */
+.page-header { display: none; }
+
+/* Transition douce pour le thème sur les composants de cette page */
+.dash-header, .quota-card, .gt-step, .actions-card { transition: background-color .3s ease, border-color .3s ease; }
+
+/* ─── En-tête Dashboard : 2 colonnes ─── */
+.dash-header {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 1.25rem;
+    margin-bottom: 1.75rem;
+    padding: 1.5rem 1.75rem;
+    background: linear-gradient(135deg, rgba(109,40,217,.18) 0%, rgba(8,145,178,.10) 100%);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    position: relative; overflow: hidden;
+    animation: fade-in-up .38s ease both;
+}
+.dash-header::before {
+    content: "";
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at 90% 50%, rgba(139,92,246,.12), transparent 60%);
+    pointer-events: none;
+}
+.dash-header::after {
+    content: "";
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(139,92,246,.55), rgba(34,211,238,.3), transparent);
+}
+.dash-greeting {
+    font-size: 1.55rem; font-weight: 800; letter-spacing: -.4px;
+    margin-bottom: .25rem;
+}
+.dash-sub { color: var(--text-muted); font-size: .9rem; }
+
+/* Carte Quota (colonne droite) */
+.quota-card {
+    background: rgba(139,92,246,.08);
+    border: 1px solid rgba(139,92,246,.22);
+    border-radius: var(--r);
+    padding: .9rem 1.2rem;
+    min-width: 215px;
+    animation: fade-in .5s .1s ease both;
+}
+.quota-label {
+    font-size: .67rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .1em; color: var(--text-muted);
+    margin-bottom: .5rem;
+}
+.quota-bar {
+    height: 5px; background: rgba(255,255,255,.08);
+    border-radius: 99px; overflow: hidden;
+    margin-bottom: .45rem;
+}
+.quota-fill {
+    height: 100%; background: var(--grad-brand);
+    border-radius: 99px; transition: width .6s ease;
+    position: relative; overflow: hidden;
+}
+.quota-fill::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.25), transparent);
+    animation: shimmer 1.5s linear infinite;
+}
+.quota-text { font-size: .78rem; color: var(--text-muted); }
+.quota-text strong { color: var(--primary-light); font-weight: 700; }
+
+/* ─── Métriques : icônes colorées + mini-bar ─── */
+.metric-card { animation-delay: calc(var(--i, 0) * .06s); }
+.metric-top  { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: .55rem; }
+.metric-icon-wrap {
+    width: 38px; height: 38px; border-radius: var(--r-sm);
+    display: flex; align-items: center; justify-content: center; font-size: 1.3rem;
+}
+.metric-icon-wrap.docs    { background: rgba(139,92,246,.18); }
+.metric-icon-wrap.indexed { background: rgba(16,185,129,.15); }
+.metric-icon-wrap.chunks  { background: rgba(34,211,238,.15); }
+.metric-icon-wrap.convs   { background: rgba(245,158,11,.15); }
+/* Liseré couleur en haut de chaque carte (déjà via .metric-card::after) */
+.metric-card:nth-child(1)::after { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+.metric-card:nth-child(2)::after { background: linear-gradient(90deg, #10b981, #34d399); }
+.metric-card:nth-child(3)::after { background: linear-gradient(90deg, #22d3ee, #67e8f9); }
+.metric-card:nth-child(4)::after { background: linear-gradient(90deg, #f59e0b, #fcd34d); }
+/* Mini barre sous la valeur */
+.metric-mini-bar {
+    height: 3px; background: rgba(255,255,255,.06);
+    border-radius: 99px; overflow: hidden; margin-top: .6rem;
+}
+.metric-mini-fill {
+    height: 100%; border-radius: 99px; width: 0%;
+    transition: width 1.2s cubic-bezier(.4,0,.2,1);
+}
+.metric-mini-fill.docs    { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+.metric-mini-fill.indexed { background: linear-gradient(90deg, #10b981, #34d399); }
+.metric-mini-fill.chunks  { background: linear-gradient(90deg, #22d3ee, #67e8f9); }
+.metric-mini-fill.convs   { background: linear-gradient(90deg, #f59e0b, #fcd34d); }
+
+/* Light mode metric bar background */
+[data-theme="light"] .metric-mini-bar { background: rgba(0,0,0,.07); }
+
+/* ─── En-tête de section ─── */
+.dash-section { margin-bottom: 1.5rem; }
+.dash-section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: .85rem;
+}
+.section-title {
+    font-size: .72rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .1em; color: var(--text-muted);
+    display: flex; align-items: center; gap: .5rem;
+}
+.section-title::before {
+    content: "";
+    display: inline-block; width: 3px; height: 14px;
+    background: var(--grad-brand); border-radius: 2px;
+    flex-shrink: 0;
+}
+
+/* ─── Feature cards : grille 4 colonnes + hover renforcé ─── */
+.features-grid { grid-template-columns: repeat(4, 1fr); }
+.feature-card { animation: fade-in-up .4s ease both; cursor: pointer; }
+.feature-card:nth-child(1) { animation-delay: .08s; }
+.feature-card:nth-child(2) { animation-delay: .14s; }
+.feature-card:nth-child(3) { animation-delay: .20s; }
+.feature-card:nth-child(4) { animation-delay: .26s; }
+.feature-card:hover {
+    border-color: var(--primary);
+    transform: translateY(-4px);
+    box-shadow: 0 10px 36px rgba(139,92,246,.22), 0 0 0 1px rgba(139,92,246,.18);
+}
+.feature-arrow {
+    position: absolute; right: 1rem; bottom: 1rem;
+    color: var(--text-faint); font-size: .9rem;
+    transition: all var(--t);
+}
+.feature-card:hover .feature-arrow { color: var(--primary-light); transform: translateX(4px); }
+
+/* ─── Actions rapides ─── */
+.actions-card { margin-bottom: 1.5rem; }
+.actions-row {
+    display: flex; gap: .75rem; flex-wrap: wrap;
+}
+.actions-row .btn { gap: .45rem; }
+.actions-row .btn-ghost {
+    flex: 1; justify-content: center; min-width: 130px;
+}
+
+/* ─── Timeline "Comment démarrer" ─── */
+.guide-card { animation: fade-in-up .4s .2s ease both; }
+.guide-card > h2 { font-size: 1rem; font-weight: 700; margin-bottom: .2rem; }
+.guide-timeline {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 0; margin-top: 1.1rem;
+    position: relative;
+}
+/* Ligne connectrice entre les pastilles */
+.guide-timeline::before {
+    content: "";
+    position: absolute;
+    top: 19px;
+    left: calc(100% / 6);
+    right: calc(100% / 6);
+    height: 2px;
+    background: linear-gradient(90deg, rgba(139,92,246,.5), rgba(139,92,246,.2), rgba(139,92,246,.5));
+    border-radius: 2px;
+    z-index: 0;
+}
+.gt-step {
+    display: flex; flex-direction: column;
+    align-items: center; text-align: center;
+    gap: .6rem; padding: .4rem 1rem 1rem;
+    position: relative; z-index: 1;
+    animation: fade-in-up .4s ease both;
+}
+.gt-step:nth-child(1) { animation-delay: .12s; }
+.gt-step:nth-child(2) { animation-delay: .20s; }
+.gt-step:nth-child(3) { animation-delay: .28s; }
+/* Pastille numérotée */
+.gt-pill {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: var(--grad-brand);
+    display: flex; align-items: center; justify-content: center;
+    font-size: .88rem; font-weight: 800; color: white;
+    box-shadow: 0 0 18px rgba(139,92,246,.45);
+    flex-shrink: 0;
+}
+.gt-icon { font-size: 1.45rem; }
+.gt-title { font-size: .9rem; font-weight: 700; color: var(--text); }
+.gt-desc  { font-size: .8rem; color: var(--text-muted); line-height: 1.58; max-width: 200px; }
+.gt-desc strong { color: var(--text-2); }
+
+/* ─── Light theme overrides dashboard ─── */
+[data-theme="light"] .dash-header {
+    background: linear-gradient(135deg, rgba(139,92,246,.09) 0%, rgba(8,145,178,.05) 100%);
+}
+[data-theme="light"] .quota-card {
+    background: rgba(139,92,246,.06);
+}
+[data-theme="light"] .guide-timeline::before {
+    background: linear-gradient(90deg, rgba(139,92,246,.3), rgba(139,92,246,.12), rgba(139,92,246,.3));
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 960px) {
+    .features-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 768px) {
+    .dash-header     { grid-template-columns: 1fr; }
+    .quota-card      { min-width: unset; }
+    .guide-timeline  { grid-template-columns: 1fr; gap: .75rem; }
+    .guide-timeline::before { display: none; }
+    .gt-step { flex-direction: row; text-align: left; align-items: flex-start; padding: .5rem; }
+    .gt-pill { flex-shrink: 0; }
+    .gt-desc { max-width: none; }
+    .actions-row .btn-ghost { flex: none; }
+    .features-grid  { grid-template-columns: 1fr; }
+}
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<!-- ══════ EN-TÊTE DASHBOARD ══════ -->
+<div class="dash-header">
+    <div>
+        <div class="dash-greeting" id="greeting-text">Bonjour 👋</div>
+        <div class="dash-sub">Voici l'état de ton espace documentaire IA</div>
+    </div>
+    {% if is_guest %}
+    <div class="quota-card">
+        <div class="quota-label">Quota essai</div>
+        <div class="quota-bar">
+            <div class="quota-fill" id="quota-fill" style="width:0%"></div>
+        </div>
+        <div class="quota-text"><strong id="quota-used">0</strong> / 3 documents utilisés</div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- ══════ MÉTRIQUES (4 cartes) ══════ -->
+<div class="metrics-grid" id="metrics-grid" style="margin-bottom:1.5rem">
+
+    <div class="metric-card" style="--i:0">
+        <div class="metric-top">
+            <div class="metric-icon-wrap docs">📄</div>
+        </div>
+        <div class="metric-value" id="m-docs">—</div>
+        <div class="metric-label">Documents</div>
+        <div class="metric-mini-bar"><div class="metric-mini-fill docs" id="bar-docs"></div></div>
+    </div>
+
+    <div class="metric-card" style="--i:1">
+        <div class="metric-top">
+            <div class="metric-icon-wrap indexed">✅</div>
+        </div>
+        <div class="metric-value" id="m-indexed">—</div>
+        <div class="metric-label">Indexés</div>
+        <div class="metric-mini-bar"><div class="metric-mini-fill indexed" id="bar-indexed"></div></div>
+    </div>
+
+    <div class="metric-card" style="--i:2">
+        <div class="metric-top">
+            <div class="metric-icon-wrap chunks">🧩</div>
+        </div>
+        <div class="metric-value" id="m-chunks">—</div>
+        <div class="metric-label">Chunks vectorisés</div>
+        <div class="metric-mini-bar"><div class="metric-mini-fill chunks" id="bar-chunks"></div></div>
+    </div>
+
+    <div class="metric-card" style="--i:3">
+        <div class="metric-top">
+            <div class="metric-icon-wrap convs">💬</div>
+        </div>
+        <div class="metric-value" id="m-convs">—</div>
+        <div class="metric-label">Conversations</div>
+        <div class="metric-mini-bar"><div class="metric-mini-fill convs" id="bar-convs"></div></div>
+    </div>
+
+</div>
+
+<!-- ══════ VOS MODULES ══════ -->
+<div class="dash-section">
+    <div class="dash-section-header">
+        <span class="section-title">Vos modules</span>
+    </div>
+    <div class="features-grid">
+
+        <a href="/documents" class="feature-card">
+            <div class="feature-icon">📄</div>
+            <div class="feature-info">
+                <h3>Documents</h3>
+                <p>Importe et gère tes PDF, Word, TXT, Markdown et CSV</p>
+            </div>
+            <span class="feature-badge available">✓ Actif</span>
+            <span class="feature-arrow">→</span>
+        </a>
+
+        <a href="/search" class="feature-card">
+            <div class="feature-icon">🔍</div>
+            <div class="feature-info">
+                <h3>Recherche RAG</h3>
+                <p>Pose une question, obtiens une réponse sourcée par l'IA</p>
+            </div>
+            <span class="feature-badge available">✓ Actif</span>
+            <span class="feature-arrow">→</span>
+        </a>
+
+        <a href="/chat" class="feature-card">
+            <div class="feature-icon">💬</div>
+            <div class="feature-info">
+                <h3>Chat continu</h3>
+                <p>Discute avec tes documents — l'IA garde le contexte et reçoit une réponse sourcée</p>
+            </div>
+            <span class="feature-badge available">✓ Actif</span>
+            <span class="feature-arrow">→</span>
+        </a>
+
+        <a href="/summary" class="feature-card">
+            <div class="feature-icon">📝</div>
+            <div class="feature-info">
+                <h3>Résumés auto</h3>
+                <p>Complet, court ou points clés — exportable en TXT</p>
+            </div>
+            <span class="feature-badge available">✓ Actif</span>
+            <span class="feature-arrow">→</span>
+        </a>
+
+    </div>
+</div>
+
+<!-- ══════ ACTIONS RAPIDES ══════ -->
+<div class="glass-card actions-card">
+    <div class="card-header" style="margin-bottom:.95rem">
+        <h2>⚡ Actions rapides</h2>
+    </div>
+    <div class="actions-row">
+        <a href="/documents" class="btn btn-primary">
+            <span>📤</span> Importer un fichier
+        </a>
+        <a href="/search"  class="btn btn-ghost">🔍 Nouvelle recherche</a>
+        <a href="/chat"    class="btn btn-ghost">💬 Démarrer un chat</a>
+        <a href="/summary" class="btn btn-ghost">📝 Générer un résumé</a>
+    </div>
+</div>
+
+<!-- ══════ GUIDE — FRISE HORIZONTALE ══════ -->
+<div class="glass-card guide-card">
+    <h2>🚀 Comment démarrer ?</h2>
+
+    <div class="guide-timeline">
+
+        <div class="gt-step">
+            <div class="gt-pill">1</div>
+            <div class="gt-icon">📤</div>
+            <div class="gt-title">Importer</div>
+            <div class="gt-desc">
+                Dépose ton PDF ou Word dans la page <strong>Documents</strong>.
+                L'indexation se lance automatiquement lors de l'import.
+            </div>
+        </div>
+
+        <div class="gt-step">
+            <div class="gt-pill">2</div>
+            <div class="gt-icon">⚙️</div>
+            <div class="gt-title">Analyser</div>
+            <div class="gt-desc">
+                DocMind extrait le texte et crée les <strong>vecteurs sémantiques</strong>
+                pour permettre la recherche intelligente dans tes documents.
+            </div>
+        </div>
+
+        <div class="gt-step">
+            <div class="gt-pill">3</div>
+            <div class="gt-icon">🔍</div>
+            <div class="gt-title">Interroger</div>
+            <div class="gt-desc">
+                Pose ta question dans <strong>Recherche</strong> ou <strong>Chat</strong>
+                et reçois une réponse sourcée par l'IA.
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}
+
+
+{% block extra_js %}
+<script>
+/* ── Greeting dynamique selon l'heure ── */
+(function () {
+    const h   = new Date().getHours();
+    const txt = h < 12 ? 'Bonjour' : h < 18 ? 'Bon après-midi' : 'Bonsoir';
+    const el  = document.getElementById('greeting-text');
+    if (el) el.textContent = `${txt} 👋`;
+})();
+
+/* ── Animation compteur ── */
+function animCount(id, target) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const isFloat = !Number.isInteger(target);
+    let current = 0;
+    const step = () => {
+        const diff = target - current;
+        if (Math.abs(diff) < (isFloat ? .05 : 1)) {
+            el.textContent = isFloat ? target.toFixed(1) : target;
+            return;
+        }
+        current += diff * .18;
+        el.textContent = isFloat ? current.toFixed(1) : Math.round(current);
+        requestAnimationFrame(step);
+    };
+    el.textContent = isFloat ? '0.0' : '0';
+    requestAnimationFrame(step);
+}
+
+/* ── Mini-bar de progression ── */
+function setBar(id, pct) {
+    const el = document.getElementById(id);
+    if (el) el.style.width = Math.min(100, Math.max(0, pct)) + '%';
+}
+
+/* ── Chargement des métriques ── */
+async function loadMetrics() {
+    let docs = 0, indexed = 0;
+
+    /* Documents + indexés */
+    try {
+        const res  = await fetch('/api/rag/documents');
+        const data = await res.json();
+        docs    = data.total || 0;
+        indexed = (data.documents || []).filter(d => d.status === 'indexed').length;
+        animCount('m-docs',    docs);
+        animCount('m-indexed', indexed);
+        /* Quota (pour invités) */
+        const qFill = document.getElementById('quota-fill');
+        const qUsed = document.getElementById('quota-used');
+        if (qFill) qFill.style.width = Math.min(100, (docs / 3) * 100) + '%';
+        if (qUsed) qUsed.textContent = docs;
+        /* Barres métriques */
+        setBar('bar-docs',    docs > 0 ? Math.min(100, (docs / 10) * 100) : 0);
+        setBar('bar-indexed', docs > 0 ? (indexed / Math.max(docs, 1)) * 100 : 0);
+    } catch {}
+
+    /* Chunks vectorisés */
+    try {
+        const res    = await fetch('/api/rag/status');
+        const data   = await res.json();
+        const chunks = data.chunks || 0;
+        animCount('m-chunks', chunks);
+        setBar('bar-chunks', chunks > 0 ? Math.min(100, (chunks / 500) * 100) : 0);
+    } catch {}
+
+    /* Conversations */
+    try {
+        const res   = await fetch('/api/chat/conversations');
+        const data  = await res.json();
+        const convs = (data.conversations || []).length;
+        animCount('m-convs', convs);
+        setBar('bar-convs', convs > 0 ? Math.min(100, (convs / 20) * 100) : 0);
+    } catch {}
+}
+
+loadMetrics();
+setInterval(loadMetrics, 30000);
+</script>
+{% endblock %}
