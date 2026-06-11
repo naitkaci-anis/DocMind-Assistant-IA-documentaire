@@ -247,4 +247,3 @@ Installe Visual Studio Build Tools avec "Desktop development with C++".
 **ANIS-NAIT-KACI** — [anisnaitkaci831@gmail.com](mailto:anisnaitkaci831@gmail.com)
 =======
 # DocMind-Assistant-IA-documentaire
->>>>>>> 0e4790c5084a748efec9453a30413f321fba7dad
